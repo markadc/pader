@@ -9,10 +9,10 @@ from pader.core.response import Response
 class Spider:
     start_urls = []
 
-    def ready(self):
+    def start_requests(self):
         """爬虫入口"""
         for url in self.start_urls:
-            yield Request(url, callback=self.parse, middleware=self.middleware)
+            yield Request(url)
 
     def parse(self, request, response):
         """回调函数"""
@@ -36,9 +36,13 @@ class Spider:
 
     def run(self):
         self.when_spider_start()
-        result = self.ready()
+        result = self.start_requests()
         self.deal_result(result)
         self.when_spider_end()
+
+    def set_safe_request(self, request: Request):
+        request.middleware = request.middleware or self.middleware
+        request.callback = request.callback or self.parse
 
     def deal_result(self, result):
         if result is None:
@@ -48,17 +52,12 @@ class Spider:
 
         for request in result:
             if isinstance(request, Request):
-                request.middleware = request.middleware or self.middleware
+                self.set_safe_request(request)
+
                 request.middleware(request)
-
-                _response = request.send()
-                if not _response:
-                    continue
-
-                response = Response(_response)
+                response = Response(request.send())
                 if self.validate(request, response) is False:
                     continue
 
-                request.callback = request.callback or self.parse
                 result = request.callback(request, response)
                 self.deal_result(result)

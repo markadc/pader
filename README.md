@@ -2,11 +2,15 @@
 
 # 持续更新中...
 
+- 爬虫支持并发（QueueSpider）2023-12-25
+
 # python解释器
 
 python3+
 
 # 使用pader的示例
+
+## 使用Spider
 
 ```python
 from loguru import logger
@@ -52,5 +56,63 @@ class TestSpider(pader.Spider):
 
 if __name__ == '__main__':
     TestSpider().run()
+
+```
+## 使用QueueSpider
+
+```python
+import threading
+import time
+
+from loguru import logger
+
+import pader
+from pader import Request
+from pader.core.queue_spider import QueueSpider
+
+
+def t_name():
+    return threading.current_thread().name
+
+
+def show(request: Request):
+    logger.success("回调: {}  =>  线程: {}".format(request.callback.__name__, t_name()))
+
+
+URL = "https://www.baidu.com/s?&wd=python3"
+
+
+class TestSpider(QueueSpider):
+    def start_requests(self):
+        for i in range(5):
+            yield pader.Request(URL)
+
+    def when_spider_start(self):
+        logger.info('爬虫开始了...')
+
+    def when_spider_end(self):
+        logger.info('...爬虫结束了')
+
+    def parse(self, request, response):
+        show(request)
+        for i in range(2):
+            mark = 'parse-{}'.format(i + 1)
+            yield pader.Request(URL, mark=mark, callback=self.parse_list)
+
+    def parse_list(self, request, response):
+        show(request)
+        for i in range(3):
+            mark = 'parse_list-{}'.format(i + 1)
+            yield pader.Request(URL, mark=mark, callback=self.parse_detail)
+
+    def parse_detail(self, request, response):
+        show(request)
+
+    def middleware(self, request):
+        time.sleep(1)  # 睡眠1S方便看出并发效果
+
+
+if __name__ == '__main__':
+    TestSpider(speed=5, qsize=10).run()
 
 ```
