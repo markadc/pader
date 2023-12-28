@@ -1,14 +1,17 @@
-# 轻量框架，支持中间件、检验等功能。用法与Scrapy、Feapder类似。
-
 # 持续更新中...
 
-- 爬虫支持并发（QueueSpider）2023-12-25
+## 更新日志
+
+- 2023-12-25 爬虫支持并发
+- 2023-12-26 优化代码，修复BUG
+
+# 轻量框架，支持中间件、检验等功能。用法与Scrapy、Feapder类似。
 
 # python解释器
 
-python3+
+- python3+
 
-# 使用pader的示例
+# 如何使用pader？
 
 ## 使用Spider
 
@@ -58,6 +61,7 @@ if __name__ == '__main__':
     TestSpider().run()
 
 ```
+
 ## 使用QueueSpider
 
 ```python
@@ -67,22 +71,20 @@ import time
 from loguru import logger
 
 import pader
-from pader import Request
-from pader.core.queue_spider import QueueSpider
 
 
 def t_name():
     return threading.current_thread().name
 
 
-def show(request: Request):
+def show(request):
     logger.success("回调: {}  =>  线程: {}".format(request.callback.__name__, t_name()))
 
 
 URL = "https://www.baidu.com/s?&wd=python3"
 
 
-class TestSpider(QueueSpider):
+class TestSpider(pader.QueueSpider):
     def start_requests(self):
         for i in range(5):
             yield pader.Request(URL)
