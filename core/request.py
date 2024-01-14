@@ -88,6 +88,6 @@ class Request:
             raise ResponseCodeError('{} not in {}'.format(response.status_code, self.codes))
 
         if self.checker and self.checker(self.url, response.text) is False:
-            raise ResponseTextError('not ideal')
+            raise ResponseTextError('not ideal text')
 
         return response

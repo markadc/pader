@@ -30,7 +30,7 @@ class Spider:
         """爬虫开始"""
         pass
 
-    def when_spider_end(self):
+    def when_spider_close(self):
         """爬虫结束"""
         pass
 
@@ -38,7 +38,7 @@ class Spider:
         self.when_spider_start()
         result = self.start_requests()
         self.deal_result(result)
-        self.when_spider_end()
+        self.when_spider_close()
 
     def set_safe_request(self, request: Request):
         request.middleware = request.middleware or self.middleware

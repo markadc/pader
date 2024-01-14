@@ -4,6 +4,7 @@
 
 - 2023-12-25 爬虫支持并发
 - 2023-12-26 优化代码，修复BUG
+- 2024-01-05 解析数据改为使用parsel库
 
 # 轻量框架，支持中间件、检验等功能。用法与Scrapy、Feapder类似。
 
@@ -27,14 +28,14 @@ class TestSpider(pader.Spider):
     def when_spider_start(self):
         print('爬虫开始了...')
 
-    def when_spider_end(self):
+    def when_spider_close(self):
         print('...爬虫结束了')
 
     def parse(self, request, response):
         lis = response.xpath('//ul[@id="hotsearch-content-wrapper"]/li')
         for li in lis:
-            url = li.xpath('./a/@href')[0]
-            title = li.xpath('./a/span[last()]/text()')[0]
+            url = li.xpath('./a/@href').get()
+            title = li.xpath('./a/span[last()]/text()').get()
             logger.success(title)
             logger.success(url)
             logger.info('\r')
@@ -43,9 +44,9 @@ class TestSpider(pader.Spider):
     def parse_detail(self, request, response):
         nodes = response.xpath('//div[@class="c-container"]//h3')
         for node in nodes:
-            some = node.xpath('./a//text()')
+            some = node.xpath('./a//text()').getall()
             title = ''.join(some)
-            url = node.xpath('./a/@href')[0]
+            url = node.xpath('./a/@href').get()
             logger.success(title)
             logger.success(url)
 
@@ -92,7 +93,7 @@ class TestSpider(pader.QueueSpider):
     def when_spider_start(self):
         logger.info('爬虫开始了...')
 
-    def when_spider_end(self):
+    def when_spider_close(self):
         logger.info('...爬虫结束了')
 
     def parse(self, request, response):

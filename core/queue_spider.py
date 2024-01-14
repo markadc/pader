@@ -25,8 +25,8 @@ def safe(func):
 
 class QueueSpider(Spider):
     def __init__(self, qsize=10, speed=2):
-        self.request_queue = RequestQueue(qsize=qsize)
-        self.speed = speed
+        self.__request_queue = RequestQueue(qsize=qsize)
+        self.__speed = speed
         self.__pool1 = ThreadPoolExecutor(max_workers=speed)
         self.__pool2 = ThreadPoolExecutor(max_workers=speed)
         self.__fs = []
@@ -41,12 +41,12 @@ class QueueSpider(Spider):
 
         # 爬虫流程
         self.__pool1.submit(self.ready)
-        for _ in range(self.speed):
+        for _ in range(self.__speed):
             self.__pool1.submit(self.start_tasks)
         self.__pool1.shutdown()
 
         # 爬虫结束
-        self.when_spider_end()
+        self.when_spider_close()
 
     def get_result(self, request: Request):
         """请求 ==> 中间件 ==> 响应 ==>  校验 ==> 回调"""
@@ -72,11 +72,6 @@ class QueueSpider(Spider):
             except:
                 pass
 
-        # 方式1
-        # if len(self.__fs) == 0:
-        #     return True
-
-        # 方式2
         for i in range(3):
             time.sleep(1)
             if len(self.__fs) != 0:
@@ -87,10 +82,10 @@ class QueueSpider(Spider):
     @safe
     def start_tasks(self):
         while True:
-            if self.request_queue.is_empty() and self.job_is_done():
+            if self.__request_queue.is_empty() and self.job_is_done():
                 break
 
-            request = self.request_queue.get()
+            request = self.__request_queue.get()
             if request:
                 f = self.__pool2.submit(self.job, request)
                 self.__fs.append(f)
@@ -103,7 +98,7 @@ class QueueSpider(Spider):
         for the in result:
             if isinstance(the, Request):
                 self.set_safe_request(the)
-                self.request_queue.add(the)
+                self.__request_queue.add(the)
 
 
 class RequestQueue:
