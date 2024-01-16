@@ -17,7 +17,7 @@
 
 # 如何使用pader？
 
-#### 使用Spider
+#### 使用WeakSpider
 
 ```python
 from loguru import logger
