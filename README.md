@@ -1,20 +1,23 @@
 # 持续更新中...
 
-## 更新日志
+#### 更新日志
 
 - 2023-12-25 爬虫支持并发
 - 2023-12-26 优化代码，修复BUG
 - 2024-01-05 解析数据改为使用parsel库
+- 2024-01-16 更新spiders包
 
-# 轻量框架，支持中间件、检验等功能。用法与Scrapy、Feapder类似。
+# 项目说明
 
-# python解释器
+- 轻量框架，支持中间件、检验等功能。用法与Scrapy、Feapder类似。
 
-- python3+
+# Python解释器
+
+- python3.10+
 
 # 如何使用pader？
 
-## 使用Spider
+#### 使用Spider
 
 ```python
 from loguru import logger
@@ -22,7 +25,7 @@ from loguru import logger
 import pader
 
 
-class TestSpider(pader.Spider):
+class TestSpider(pader.WeakSpider):
     start_urls = ['https://www.baidu.com']
 
     def when_spider_start(self):
@@ -63,7 +66,7 @@ if __name__ == '__main__':
 
 ```
 
-## 使用QueueSpider
+#### 使用QueueSpider
 
 ```python
 import threading

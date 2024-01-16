@@ -10,7 +10,7 @@ from loguru import logger
 
 from pader.core.request import Request
 from pader.core.response import Response
-from pader.core.spider import Spider
+from pader.core.spiders.base_spider import BaseSpider
 
 
 def safe(func):
@@ -23,7 +23,7 @@ def safe(func):
     return _safe
 
 
-class QueueSpider(Spider):
+class QueueSpider(BaseSpider):
     def __init__(self, qsize=10, speed=2):
         self.__request_queue = RequestQueue(qsize=qsize)
         self.__speed = speed
@@ -97,7 +97,7 @@ class QueueSpider(Spider):
             return
         for the in result:
             if isinstance(the, Request):
-                self.set_safe_request(the)
+                self.ensure_request(the)
                 self.__request_queue.add(the)
 
 
